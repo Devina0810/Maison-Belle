@@ -14,25 +14,39 @@ const OrderSummary = () => {
 
 	const handlePayment = async () => {
 		try {
+			console.log("Starting payment process...");
+			console.log("Cart:", cart);
+			console.log("Coupon:", coupon);
+			
 			const res = await axios.post("/payments/create-checkout-session", {
 				products: cart,
 				couponCode: coupon ? coupon.code : null,
 			});
 
+			console.log("Checkout session response:", res.data);
 			const { orderId, amount, currency } = res.data;
+
+			// Check if Razorpay key is available
+			const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+			console.log("Razorpay Key:", razorpayKey);
+			
+			if (!razorpayKey) {
+				throw new Error("Razorpay key not found in environment variables");
+			}
 
 			const script = document.createElement("script");
 			script.src = "https://checkout.razorpay.com/v1/checkout.js";
 			script.onload = () => {
 				const options = {
-					key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+					key: razorpayKey,
 					amount,
 					currency,
-					name: "Cartify",
+					name: "Maison Belle",
 					description: "Payment for your order",
 					order_id: orderId,
 					handler: async function (response) {
 						try {
+							console.log("Payment response:", response);
 							await axios.post("/payments/checkout-success", {
 								razorpay_order_id: response.razorpay_order_id,
 								razorpay_payment_id: response.razorpay_payment_id,
@@ -60,9 +74,21 @@ const OrderSummary = () => {
 				};
 				new window.Razorpay(options).open();
 			};
+			
+			script.onerror = () => {
+				console.error("Failed to load Razorpay script");
+				alert("Failed to load payment gateway. Please try again.");
+			};
+			
 			document.head.appendChild(script);
 		} catch (error) {
 			console.error("Payment error:", error);
+			if (error.response) {
+				console.error("Error response:", error.response.data);
+				alert(`Payment error: ${error.response.data.message || error.response.data.error || 'Unknown error'}`);
+			} else {
+				alert(`Payment error: ${error.message}`);
+			}
 		}
 	};
 

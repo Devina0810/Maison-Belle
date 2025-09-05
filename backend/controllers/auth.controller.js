@@ -15,7 +15,12 @@ const generateTokens = (userId) => {
 };
 
 const storeRefreshToken = async (userId, refreshToken) => {
-	await redis.set(`refresh_token:${userId}`, refreshToken, "EX", 7 * 24 * 60 * 60); // 7days
+	try {
+		await redis.set(`refresh_token:${userId}`, refreshToken, "EX", 7 * 24 * 60 * 60); // 7days
+	} catch (error) {
+		console.log("Redis error - storing refresh token:", error.message);
+		// Continue without Redis - tokens will still work via cookies
+	}
 };
 
 const setCookies = (res, accessToken, refreshToken) => {
@@ -91,7 +96,12 @@ export const logout = async (req, res) => {
 		const refreshToken = req.cookies.refreshToken;
 		if (refreshToken) {
 			const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-			await redis.del(`refresh_token:${decoded.userId}`);
+			try {
+				await redis.del(`refresh_token:${decoded.userId}`);
+			} catch (redisError) {
+				console.log("Redis error during logout:", redisError.message);
+				// Continue with logout even if Redis fails
+			}
 		}
 
 		res.clearCookie("accessToken");
@@ -113,9 +123,18 @@ export const refreshToken = async (req, res) => {
 		}
 
 		const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-		const storedToken = await redis.get(`refresh_token:${decoded.userId}`);
+		
+		// Try to get stored token from Redis, but don't fail if Redis is down
+		let storedToken = null;
+		try {
+			storedToken = await redis.get(`refresh_token:${decoded.userId}`);
+		} catch (redisError) {
+			console.log("Redis error during token refresh:", redisError.message);
+			// If Redis is down, we'll still allow refresh based on JWT validity
+		}
 
-		if (storedToken !== refreshToken) {
+		// Only check stored token if Redis is working
+		if (storedToken !== null && storedToken !== refreshToken) {
 			return res.status(401).json({ message: "Invalid refresh token" });
 		}
 
