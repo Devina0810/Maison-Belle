@@ -22,7 +22,9 @@ const __dirname = path.resolve();
 
 // CORS configuration
 app.use(cors({
-	origin: "http://localhost:5173", // Your frontend URL
+	origin: process.env.NODE_ENV === "production" 
+		? process.env.CLIENT_URL || true // Allow your deployed frontend URL
+		: "http://localhost:5173", // Your local frontend URL
 	credentials: true, // Allow cookies
 }));
 
@@ -36,6 +38,15 @@ app.use("/api/coupons", couponRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+	console.error('Server Error:', err);
+	res.status(500).json({ 
+		message: 'Internal Server Error',
+		error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+	});
+});
+
 if (process.env.NODE_ENV === "production") {
 	app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
@@ -45,6 +56,10 @@ if (process.env.NODE_ENV === "production") {
 }
 
 app.listen(PORT, () => {
-	console.log("Server is running on http://localhost:" + PORT);
+	console.log(`Server is running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+	console.log(`MongoDB URI: ${process.env.MONGO_URI ? 'Set' : 'Not Set'}`);
+	console.log(`Redis URL: ${process.env.UPSTASH_REDIS_URL ? 'Set' : 'Not Set'}`);
 	connectDB();
+}).on('error', (err) => {
+	console.error('Server failed to start:', err);
 });
