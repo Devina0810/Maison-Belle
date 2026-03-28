@@ -1,4 +1,4 @@
-import { ShoppingCart, UserPlus, LogIn, LogOut, Lock } from "lucide-react";
+import { ShoppingCart, UserPlus, LogIn, LogOut, Lock, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useUserStore } from "../stores/useUserStore";
 import { useCartStore } from "../stores/useCartStore";
@@ -7,6 +7,8 @@ const Navbar = () => {
 	const { user, logout } = useUserStore();
 	const isAdmin = user?.role === "admin";
 	const { cart } = useCartStore();
+	const navUserLabel = user?.name?.trim() ? user.name.split(" ")[0] : "User";
+	const aiAdvisorUrl = import.meta.env.VITE_AI_ADVISOR_URL || "http://localhost:5173";
 
 	return (
 		<header
@@ -24,6 +26,19 @@ const Navbar = () => {
 					</Link>
 
 					<nav className='flex items-center gap-5'>
+						<a
+							href={aiAdvisorUrl}
+							className='bg-[#9c7e5c] hover:bg-[#b69c82] text-white px-3 py-1 rounded-md font-medium transition duration-300 ease-in-out flex items-center'
+						>
+							<MessageCircle className='inline-block mr-2' size={18} />
+							<span className='hidden sm:inline'>AI Advisor</span>
+						</a>
+						<Link
+							to={'/user'}
+							className='text-[#5e412f] hover:text-[#9c7e5c] transition duration-300 ease-in-out font-medium'
+						>
+							{navUserLabel}
+						</Link>
 						<Link
 							to={"/"}
 							className='text-[#5e412f] hover:text-[#9c7e5c] transition duration-300 ease-in-out'

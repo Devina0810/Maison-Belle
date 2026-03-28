@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import path from "path";
+import { fileURLToPath } from "url";
 
 import authRoutes from "./routes/auth.route.js";
 import productRoutes from "./routes/product.route.js";
@@ -13,18 +14,21 @@ import analyticsRoutes from "./routes/analytics.route.js";
 
 import { connectDB } from "./lib/db.js";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const ROOT_DIR = path.resolve(__dirname, "..");
+
+// Always load backend/.env regardless of where node is started from.
+dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
-const PORT = process.env.PORT || 5000;
-
-const __dirname = path.resolve();
+const PORT = process.env.PORT || 5001;
 
 // CORS configuration
 app.use(cors({
 	origin: process.env.NODE_ENV === "production" 
 		? process.env.CLIENT_URL || true // Allow your deployed frontend URL
-		: "http://localhost:5173", // Your local frontend URL
+		: ["http://localhost:5173", "http://localhost:5174"], // Common local frontend URLs
 	credentials: true, // Allow cookies
 }));
 
@@ -37,6 +41,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/coupons", couponRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/orders", (await import("./routes/order.route.js")).default);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -48,10 +53,10 @@ app.use((err, req, res, next) => {
 });
 
 if (process.env.NODE_ENV === "production") {
-	app.use(express.static(path.join(__dirname, "/frontend/dist")));
+	app.use(express.static(path.join(ROOT_DIR, "frontend", "dist")));
 
 	app.get("*", (req, res) => {
-		res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+		res.sendFile(path.resolve(ROOT_DIR, "frontend", "dist", "index.html"));
 	});
 }
 

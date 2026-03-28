@@ -39,6 +39,19 @@ const orderSchema = new mongoose.Schema(
 			type: String,
 			unique: true,
 		},
+		status: {
+			type: String,
+			enum: ["placed", "delivered", "requested_return", "requested_exchange", "returned", "exchanged"],
+			default: "placed",
+		},
+		returnReason: {
+			type: String,
+			default: "",
+		},
+		exchangeReason: {
+			type: String,
+			default: "",
+		},
 	},
 	{ timestamps: true }
 );

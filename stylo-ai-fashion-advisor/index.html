@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maison Belle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --mb-bg: #f5f0e8;
+        --mb-nav: #e8e0d4;
+        --mb-text: #5e412f;
+        --mb-text-soft: #7b6650;
+        --mb-accent: #9c7e5c;
+        --mb-border: #e9ded2;
+      }
+
+      @keyframes riseIn {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes bubbleDot {
+        0%,
+        100% {
+          opacity: 0.55;
+          transform: translateY(0);
+        }
+        50% {
+          opacity: 1;
+          transform: translateY(-2px);
+        }
+      }
+
+      body {
+        margin: 0;
+        color: var(--mb-text);
+        font-family: 'Cormorant Garamond', serif;
+        background: var(--mb-bg);
+        min-height: 100vh;
+      }
+
+      .font-editorial {
+        font-family: 'Cormorant Garamond', serif;
+      }
+
+      .reveal-rise {
+        animation: riseIn 0.5s ease-out both;
+      }
+
+      .typing-dot {
+        animation: bubbleDot 0.9s ease-in-out infinite;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react/": "https://esm.sh/react@18.2.0/",
+    "react-dom/": "https://esm.sh/react-dom@18.2.0/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.12.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

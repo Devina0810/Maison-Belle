@@ -161,3 +161,27 @@ export const getProfile = async (req, res) => {
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
+
+// Update user info (address, contact number, email)
+export const updateProfile = async (req, res) => {
+	try {
+		const userId = req.user._id;
+		const { name, address, contactNumber, email } = req.body;
+		const update = {};
+		if (name !== undefined) update.name = name;
+		if (address !== undefined) update.address = address;
+		if (contactNumber !== undefined) update.contactNumber = contactNumber;
+		if (email !== undefined) update.email = email;
+		const user = await User.findByIdAndUpdate(userId, update, { new: true });
+		res.json({
+			_id: user._id,
+			name: user.name,
+			email: user.email,
+			address: user.address,
+			contactNumber: user.contactNumber,
+			role: user.role,
+		});
+	} catch (error) {
+		res.status(500).json({ message: "Server error", error: error.message });
+	}
+};

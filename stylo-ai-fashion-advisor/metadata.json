@@ -1,0 +1,5 @@
+{
+  "name": "Stylo AI Fashion Advisor",
+  "description": "An AI-powered chatbot for an e-commerce app. Users can describe their body type, style preferences, and occasions, and the AI will provide personalized fashion advice and product recommendations.",
+  "requestFramePermissions": []
+}
