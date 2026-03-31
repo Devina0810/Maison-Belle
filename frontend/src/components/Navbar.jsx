@@ -8,7 +8,7 @@ const Navbar = () => {
 	const isAdmin = user?.role === "admin";
 	const { cart } = useCartStore();
 	const navUserLabel = user?.name?.trim() ? user.name.split(" ")[0] : "User";
-	const aiAdvisorUrl = import.meta.env.VITE_AI_ADVISOR_URL || "http://localhost:5173";
+	const aiAdvisorUrl = import.meta.env.VITE_AI_ADVISOR_URL || "https://maison-belle-1.onrender.com";
 
 	return (
 		<header
