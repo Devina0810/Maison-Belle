@@ -8,7 +8,16 @@ const Navbar = () => {
 	const isAdmin = user?.role === "admin";
 	const { cart } = useCartStore();
 	const navUserLabel = user?.name?.trim() ? user.name.split(" ")[0] : "User";
-	const aiAdvisorUrl = import.meta.env.VITE_AI_ADVISOR_URL || "https://maison-belle-1.onrender.com";
+	const hostedAiAdvisorUrl = "https://maison-belle-1.onrender.com";
+	const configuredAiAdvisorUrl = import.meta.env.VITE_AI_ADVISOR_URL?.trim();
+	const isConfiguredLocalhost =
+		configuredAiAdvisorUrl?.includes("localhost") || configuredAiAdvisorUrl?.includes("127.0.0.1");
+	const isHostedEnvironment =
+		typeof window !== "undefined" && !["localhost", "127.0.0.1"].includes(window.location.hostname);
+	const aiAdvisorUrl =
+		isHostedEnvironment && isConfiguredLocalhost
+			? hostedAiAdvisorUrl
+			: configuredAiAdvisorUrl || hostedAiAdvisorUrl;
 
 	return (
 		<header
